@@ -9,6 +9,8 @@ import {
   voices
 } from "./stories.js";
 
+const NARRATION_PLAYBACK_RATE = 0.82;
+
 const state = {
   storyId: "changan-rain-night",
   durationId: "long",
@@ -390,6 +392,9 @@ function playGeneratedAudio() {
   const audio = els.narrationAudio;
   audio.src = audioFileName();
   audio.volume = Number(els.narrationVolume.value) / 100;
+  audio.playbackRate = NARRATION_PLAYBACK_RATE;
+  audio.preservesPitch = true;
+  audio.webkitPreservesPitch = true;
   audio.currentTime = 0;
 
   const onTimeUpdate = () => {
@@ -411,7 +416,7 @@ function playGeneratedAudio() {
 
   return audio.play().then(() => {
     state.audioMode = "file";
-    els.playbackStatus.textContent = "正在播放生成音频";
+    els.playbackStatus.textContent = "正在播放生成音频 · 慢速";
     armTimer();
   }).catch((error) => {
     cleanup();
@@ -432,7 +437,7 @@ function playSpeechPreview() {
   state.audioMode = "speech";
   state.speaking = true;
   state.speechIndex = 0;
-  els.playbackStatus.textContent = "正在用浏览器朗读预览";
+  els.playbackStatus.textContent = "正在用浏览器朗读预览 · 慢速";
   armTimer();
   speakNext(paragraphs);
   return Promise.resolve();

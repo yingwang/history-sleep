@@ -8,24 +8,24 @@ export const voices = [
     name: "晓晓",
     edgeName: "zh-CN-XiaoxiaoNeural",
     description: "默认女声，清楚、稳定，适合大多数睡前故事。",
-    tts: { rate: "-25%", volume: "-8%", pitch: "-2Hz" },
-    speech: { rate: 0.72, pitch: 0.92, volume: 0.9 }
+    tts: { rate: "-38%", volume: "-8%", pitch: "-2Hz" },
+    speech: { rate: 0.62, pitch: 0.92, volume: 0.9 }
   },
   {
     id: "yunxi",
     name: "云希",
     edgeName: "zh-CN-YunxiNeural",
     description: "男声，语气更暖，适合低刺激人物陪伴。",
-    tts: { rate: "-28%", volume: "-8%", pitch: "-4Hz" },
-    speech: { rate: 0.7, pitch: 0.86, volume: 0.9 }
+    tts: { rate: "-40%", volume: "-8%", pitch: "-4Hz" },
+    speech: { rate: 0.6, pitch: 0.86, volume: 0.9 }
   },
   {
     id: "xiaoyi",
     name: "晓伊",
     edgeName: "zh-CN-XiaoyiNeural",
     description: "更甜一点的女声，适合轻柔日常和园林、书房主题。",
-    tts: { rate: "-25%", volume: "-8%", pitch: "-1Hz" },
-    speech: { rate: 0.72, pitch: 0.96, volume: 0.9 }
+    tts: { rate: "-38%", volume: "-8%", pitch: "-1Hz" },
+    speech: { rate: 0.62, pitch: 0.96, volume: 0.9 }
   }
 ];
 

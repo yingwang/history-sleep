@@ -112,8 +112,8 @@ Mixkit 的 sound effects 标注为 Free License。这个项目没有把背景音
 
 默认参数已经写在 `src/stories.js`：
 
-- `zh-CN-XiaoxiaoNeural`：`rate=-25%`，`volume=-8%`，`pitch=-2Hz`。
-- `zh-CN-YunxiNeural`：`rate=-28%`，`volume=-8%`，`pitch=-4Hz`。
-- `zh-CN-XiaoyiNeural`：`rate=-25%`，`volume=-8%`，`pitch=-1Hz`。
+- `zh-CN-XiaoxiaoNeural`：`rate=-38%`，`volume=-8%`，`pitch=-2Hz`。
+- `zh-CN-YunxiNeural`：`rate=-40%`，`volume=-8%`，`pitch=-4Hz`。
+- `zh-CN-XiaoyiNeural`：`rate=-38%`，`volume=-8%`，`pitch=-1Hz`。
 
-睡前故事的关键不是把声音做得很戏剧化，而是让语速稳定、音量略低、情绪不要起伏太大。背景音建议从 8% 到 12% 之间试，雨声可以稍高一点，翻书声和壁炉声要更低。
+睡前故事的关键不是把声音做得很戏剧化，而是让语速稳定、音量略低、情绪不要起伏太大。播放器会把已生成的 MP3 以 0.82 倍速播放；如果重新生成音频，以上 edge-tts 参数也会让新文件本身更慢。背景音建议从 8% 到 12% 之间试，雨声可以稍高一点，翻书声和壁炉声要更低。
