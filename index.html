@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#15172a" />
+    <title>历史睡前故事</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <p class="eyebrow">History Sleep Stories</p>
+        <h1>历史睡前故事</h1>
+        <p class="hero-copy">把历史写成一段可以慢慢听完的夜路。先选主题，再选 5 分钟或 20 分钟版本，旁白、雨声、壁炉、夜风和翻书声可以分开调。</p>
+      </header>
+
+      <main>
+        <section class="panel compact-panel" aria-label="播放设置">
+          <div class="segmented" id="durationTabs" role="tablist" aria-label="版本"></div>
+          <div class="settings-grid">
+            <label>
+              <span>旁白</span>
+              <select id="voiceSelect"></select>
+            </label>
+            <label>
+              <span>背景音</span>
+              <select id="ambientSelect"></select>
+            </label>
+          </div>
+        </section>
+
+        <section class="story-strip" aria-label="故事列表">
+          <div class="section-title">
+            <h2>第一批主题</h2>
+            <span id="readyCount"></span>
+          </div>
+          <div class="story-list" id="storyList"></div>
+        </section>
+
+        <section class="panel player-panel" aria-label="播放器">
+          <div class="player-head">
+            <div>
+              <p id="storyMeta" class="meta"></p>
+              <h2 id="storyTitle"></h2>
+            </div>
+            <button class="ghost-button" id="copyPromptButton" type="button">复制生成提示</button>
+          </div>
+
+          <p id="storySummary" class="story-summary"></p>
+
+          <div class="progress-wrap" aria-label="播放进度">
+            <div class="progress-track">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="time-row">
+              <span id="playbackStatus">未播放</span>
+              <span id="timerStatus">不定时</span>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <button class="primary-button" id="playButton" type="button">播放</button>
+            <button class="secondary-button" id="stopButton" type="button">停止</button>
+          </div>
+
+          <div class="sliders">
+            <label>
+              <span>背景音量</span>
+              <input id="ambientVolume" type="range" min="0" max="30" value="10" />
+            </label>
+            <label>
+              <span>旁白音量</span>
+              <input id="narrationVolume" type="range" min="40" max="100" value="90" />
+            </label>
+          </div>
+
+          <div class="timer-buttons" id="timerButtons" aria-label="定时关闭"></div>
+        </section>
+
+        <section class="panel text-panel" aria-label="故事正文">
+          <div class="section-title">
+            <h2>正文</h2>
+            <span id="versionState"></span>
+          </div>
+          <article id="storyText" class="story-text"></article>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <audio id="narrationAudio" preload="none"></audio>
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "历史睡前故事",
+  "short_name": "历史晚安",
+  "description": "适合睡前播放的中文历史主题慢速故事。",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#101018",
+  "theme_color": "#15172a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
