@@ -1,6 +1,6 @@
 .DS_Store
 node_modules/
-audio/*.mp3
+.tmp/
 audio/*.wav
 audio/*.m4a
 !.gitkeep

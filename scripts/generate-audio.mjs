@@ -89,18 +89,12 @@ function generate() {
       "python3",
       [
         "scripts/edge_tts_file.py",
-        "--text-file",
-        textFile,
-        "--output",
-        output,
-        "--voice",
-        job.voice.edgeName,
-        "--rate",
-        job.voice.tts.rate,
-        "--volume",
-        job.voice.tts.volume,
-        "--pitch",
-        job.voice.tts.pitch
+        `--text-file=${textFile}`,
+        `--output=${output}`,
+        `--voice=${job.voice.edgeName}`,
+        `--rate=${job.voice.tts.rate}`,
+        `--volume=${job.voice.tts.volume}`,
+        `--pitch=${job.voice.tts.pitch}`
       ],
       { stdio: "inherit" }
     );

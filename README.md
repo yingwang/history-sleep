@@ -71,7 +71,11 @@ node scripts/generate-audio.mjs --story changan-rain-night --duration long --voi
 audio/changan-rain-night-long-zh-CN-XiaoxiaoNeural.mp3
 ```
 
-这个目录默认不提交音频文件。以后如果要部署到 GitHub Pages 或静态托管，可以按需要取消忽略，或者把音频放到对象存储，再把播放器里的路径改成 CDN。
+`audio/` 里的 mp3 会随静态站点一起提交，GitHub Pages 或其他静态托管可以直接读取。以后如果音频数量变大，再把它们迁到对象存储，并把播放器路径改成 CDN。
+
+## GitHub Pages
+
+仓库已经包含 GitHub Pages workflow。推送到 `main` 后，Actions 会把 `index.html`、`manifest.webmanifest`、`icon.svg`、`src/` 和 `audio/` 打包部署成静态站点。
 
 ## 内容怎么填
 
