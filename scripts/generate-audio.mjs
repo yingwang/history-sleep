@@ -1,7 +1,7 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { stories, voices, stripCues } from "../src/stories.js";
+import { durations, stories, voices, stripCues } from "../src/stories.js";
 
 const args = process.argv.slice(2);
 
@@ -32,7 +32,7 @@ function collectJobs() {
 
   for (const story of stories) {
     if (storyFilter && story.id !== storyFilter) continue;
-    for (const durationId of ["short", "long"]) {
+    for (const { id: durationId } of durations) {
       if (durationFilter && durationId !== durationFilter) continue;
       const version = story.versions[durationId];
       if (!version?.text?.length) continue;

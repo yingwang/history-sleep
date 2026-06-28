@@ -9,12 +9,11 @@
 - 中国历史：长安雨夜、汴梁夜市散后、苏州园林夏夜、紫禁城雪夜、敦煌驿站、江南书房。
 - 欧洲历史：佛罗伦萨画室、威尼斯商船码头、巴黎旧书店、维也纳冬夜、卢浮宫闭馆后、阿尔萨斯木筋屋雨夜。
 
-每个主题都有两个版本位：
+当前页面只保留一个版本：
 
-- `short`：5 分钟短版，适合马上睡。
 - `long`：20 分钟长版，适合完整睡前音频。
 
-目前已放入「长安雨夜」20 分钟长版。其他故事先保留占位，等正文生成后直接补进对应版本。
+目前第一批 12 个主题都已放入长版正文，并生成了 `zh-CN-XiaoxiaoNeural`、`zh-CN-YunxiNeural`、`zh-CN-XiaoyiNeural` 三个声线的 MP3。
 
 ## 本地预览
 
@@ -28,9 +27,8 @@ npm run dev
 页面支持：
 
 - 主题横向滑动选择。
-- 5 分钟 / 20 分钟版本切换。
 - 旁白选择：`zh-CN-XiaoxiaoNeural`、`zh-CN-YunxiNeural`、`zh-CN-XiaoyiNeural`。
-- 背景音选择：雨声、壁炉、夜风、翻书声、无背景音。
+- 背景音选择：雨声、壁炉、夜风、翻书声、海浪、无背景音。
 - 背景音量和旁白音量分开调。
 - 定时关闭：不定时、10 分钟、20 分钟、30 分钟。
 - 如果本地已有 edge-tts 生成的 mp3，会优先播放 mp3；如果没有，会退回浏览器内置中文朗读，方便快速预览。
@@ -90,6 +88,7 @@ audio/changan-rain-night-long-zh-CN-XiaoxiaoNeural.mp3
 - `ambient/fireplace.mp3`：Mixkit · Campfire burning crackles
 - `ambient/wind.mp3`：Mixkit · Wind blowing ambience
 - `ambient/pages.mp3`：Mixkit · Single book paging
+- `ambient/ocean.mp3`：Mixkit · Sea waves ambience
 
 Mixkit 的 sound effects 标注为 Free License。这个项目没有把背景音单独转售或重新分发成素材库，只作为网页睡前故事播放器的一部分使用。
 
@@ -102,7 +101,6 @@ Mixkit 的 sound effects 标注为 Free License。这个项目没有把背景音
   id: "changan-rain-night",
   title: "长安雨夜",
   versions: {
-    short: { voice: "xiaoxiao", text: [] },
     long: { voice: "xiaoxiao", text: ["第一段", "第二段"] }
   }
 }

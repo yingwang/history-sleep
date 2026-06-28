@@ -24,7 +24,6 @@ const state = {
 };
 
 const els = {
-  durationTabs: document.querySelector("#durationTabs"),
   voiceSelect: document.querySelector("#voiceSelect"),
   ambientSelect: document.querySelector("#ambientSelect"),
   readyCount: document.querySelector("#readyCount"),
@@ -74,22 +73,6 @@ function showToast(message) {
   showToast.handle = window.setTimeout(() => els.toast.classList.remove("show"), 2200);
 }
 
-function renderDurationTabs() {
-  els.durationTabs.replaceChildren(
-    ...durations.map((duration) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.textContent = duration.label;
-      button.className = duration.id === state.durationId ? "active" : "";
-      button.addEventListener("click", () => {
-        state.durationId = duration.id;
-        render();
-      });
-      return button;
-    })
-  );
-}
-
 function renderSelectors() {
   els.voiceSelect.replaceChildren(
     ...voices.map((voice) => {
@@ -119,7 +102,7 @@ function versionReadyLabel(story) {
 
 function renderStoryList() {
   const ready = stories.filter((story) => hasText(getVersion(story, state.durationId))).length;
-  els.readyCount.textContent = `${ready}/${stories.length} 已有${state.durationId === "short" ? "短版" : "长版"}`;
+  els.readyCount.textContent = `${ready}/${stories.length} 已有长版`;
   els.storyList.replaceChildren(
     ...stories.map((story) => {
       const button = document.createElement("button");
@@ -204,7 +187,6 @@ function updateTimerStatus() {
 }
 
 function render() {
-  renderDurationTabs();
   renderSelectors();
   renderStoryList();
   renderStory();
@@ -320,6 +302,9 @@ function startSyntheticAmbient() {
   } else if (state.ambientId === "pages") {
     addLoop("lowpass", 380);
     ambient.intervals.push(window.setInterval(() => playPageTurn(audioCtx, gain), 12000 + Math.random() * 8000));
+  } else if (state.ambientId === "ocean") {
+    addLoop("lowpass", 420);
+    addLoop("bandpass", 760);
   }
 
   state.ambient = ambient;
