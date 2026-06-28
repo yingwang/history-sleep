@@ -59,6 +59,10 @@ function currentVoice() {
   return getVoice(state.voiceId);
 }
 
+function currentAmbient() {
+  return ambiences.find((ambient) => ambient.id === state.ambientId) || ambiences[0];
+}
+
 function audioFileName() {
   return `audio/${state.storyId}-${state.durationId}-${currentVoice().edgeName}.mp3`;
 }
@@ -234,6 +238,51 @@ function startAmbient() {
     return;
   }
 
+  const ambientConfig = currentAmbient();
+  if (ambientConfig.file) {
+    startFileAmbient(ambientConfig);
+    return;
+  }
+
+  startSyntheticAmbient();
+}
+
+function startFileAmbient(ambientConfig) {
+  const volume = Number(els.ambientVolume.value) / 100;
+  const ambient = { audio: null, intervals: [], nodes: [] };
+  const audio = new Audio(ambientConfig.file);
+  audio.volume = volume;
+  audio.loop = !ambientConfig.interval;
+  audio.preload = "auto";
+  ambient.audio = audio;
+  state.ambient = ambient;
+
+  if (ambientConfig.interval) {
+    const schedulePageTurn = () => {
+      const handle = window.setTimeout(() => {
+        if (state.ambient !== ambient) {
+          return;
+        }
+        audio.currentTime = 0;
+        audio.volume = Number(els.ambientVolume.value) / 100;
+        audio.play().catch(() => {});
+        schedulePageTurn();
+      }, 12000 + Math.random() * 8000);
+      ambient.intervals.push(handle);
+    };
+    schedulePageTurn();
+    return;
+  }
+
+  audio.play().catch(() => {
+    if (state.ambient === ambient) {
+      stopAmbient();
+      startSyntheticAmbient();
+    }
+  });
+}
+
+function startSyntheticAmbient() {
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   if (!AudioContext) {
     return;
@@ -312,6 +361,7 @@ function stopAmbient() {
   }
   for (const interval of state.ambient.intervals) {
     window.clearInterval(interval);
+    window.clearTimeout(interval);
   }
   for (const node of state.ambient.nodes) {
     try {
@@ -321,7 +371,14 @@ function stopAmbient() {
       // stopped nodes can throw in Safari; ignore.
     }
   }
-  state.ambient.audioCtx.close();
+  if (state.ambient.audio) {
+    state.ambient.audio.pause();
+    state.ambient.audio.removeAttribute("src");
+    state.ambient.audio.load();
+  }
+  if (state.ambient.audioCtx) {
+    state.ambient.audioCtx.close();
+  }
   state.ambient = null;
 }
 
@@ -496,6 +553,9 @@ els.ambientSelect.addEventListener("change", () => {
 els.ambientVolume.addEventListener("input", () => {
   if (state.ambient?.gain) {
     state.ambient.gain.gain.value = Number(els.ambientVolume.value) / 100;
+  }
+  if (state.ambient?.audio) {
+    state.ambient.audio.volume = Number(els.ambientVolume.value) / 100;
   }
 });
 

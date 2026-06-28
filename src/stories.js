@@ -31,10 +31,35 @@ export const voices = [
 ];
 
 export const ambiences = [
-  { id: "rain", name: "雨声", description: "细雨和檐下水声，适合夜游和客舍。" },
-  { id: "fireplace", name: "壁炉", description: "低频火声和偶尔轻响，适合欧洲室内。" },
-  { id: "wind", name: "夜风", description: "很轻的风声，适合庭院、港口和雪夜。" },
-  { id: "pages", name: "翻书声", description: "间隔很长的纸页声，适合书房和博物馆。" },
+  {
+    id: "rain",
+    name: "雨声",
+    description: "真实雨声循环，适合夜游和客舍。",
+    file: "ambient/rain.mp3",
+    source: "Mixkit · Rain long loop"
+  },
+  {
+    id: "fireplace",
+    name: "壁炉",
+    description: "真实柴火声，适合欧洲室内。",
+    file: "ambient/fireplace.mp3",
+    source: "Mixkit · Campfire burning crackles"
+  },
+  {
+    id: "wind",
+    name: "夜风",
+    description: "真实风声氛围，适合庭院、港口和雪夜。",
+    file: "ambient/wind.mp3",
+    source: "Mixkit · Wind blowing ambience"
+  },
+  {
+    id: "pages",
+    name: "翻书声",
+    description: "间隔很长的真实纸页声，适合书房和博物馆。",
+    file: "ambient/pages.mp3",
+    source: "Mixkit · Single book paging",
+    interval: true
+  },
   { id: "none", name: "无背景音", description: "只播放旁白。" }
 ];
 

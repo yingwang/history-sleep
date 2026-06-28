@@ -34,6 +34,7 @@ npm run dev
 - 背景音量和旁白音量分开调。
 - 定时关闭：不定时、10 分钟、20 分钟、30 分钟。
 - 如果本地已有 edge-tts 生成的 mp3，会优先播放 mp3；如果没有，会退回浏览器内置中文朗读，方便快速预览。
+- 背景音优先播放 `ambient/` 里的真实环境音文件；如果文件加载失败，会回退到浏览器实时合成音。
 
 ## 生成音频
 
@@ -79,7 +80,18 @@ audio/changan-rain-night-long-zh-CN-XiaoxiaoNeural.mp3
 
 在线地址：https://yingwang.github.io/history-sleep/
 
-仓库已经包含 GitHub Pages workflow。推送到 `main` 后，Actions 会把 `index.html`、`manifest.webmanifest`、`icon.svg`、`src/` 和 `audio/` 打包部署成静态站点。
+仓库已经包含 GitHub Pages workflow。推送到 `main` 后，Actions 会把 `index.html`、`manifest.webmanifest`、`icon.svg`、`src/`、`audio/` 和 `ambient/` 打包部署成静态站点。
+
+## 背景音来源
+
+当前背景音来自 Mixkit 免费音效，文件放在 `ambient/`：
+
+- `ambient/rain.mp3`：Mixkit · Rain long loop
+- `ambient/fireplace.mp3`：Mixkit · Campfire burning crackles
+- `ambient/wind.mp3`：Mixkit · Wind blowing ambience
+- `ambient/pages.mp3`：Mixkit · Single book paging
+
+Mixkit 的 sound effects 标注为 Free License。这个项目没有把背景音单独转售或重新分发成素材库，只作为网页睡前故事播放器的一部分使用。
 
 ## 内容怎么填
 

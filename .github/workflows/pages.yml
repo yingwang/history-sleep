@@ -39,6 +39,7 @@ jobs:
           cp icon.svg _site/
           cp -R src _site/
           cp -R audio _site/
+          cp -R ambient _site/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
