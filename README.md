@@ -1,5 +1,7 @@
 # 历史睡前故事
 
+在线版：https://yingwang.github.io/history-sleep/
+
 一个手机优先的网页版睡前故事播放器，内容方向是低刺激历史主题：夜游、古人日常、人物陪伴和博物馆闭馆后的安静导览。故事正文不写在组件里，统一放在 `src/stories.js`，之后可以接入生成好的 TTS 音频，也可以先用浏览器内置朗读做预览。
 
 第一批主题已经建好结构：
@@ -74,6 +76,8 @@ audio/changan-rain-night-long-zh-CN-XiaoxiaoNeural.mp3
 `audio/` 里的 mp3 会随静态站点一起提交，GitHub Pages 或其他静态托管可以直接读取。以后如果音频数量变大，再把它们迁到对象存储，并把播放器路径改成 CDN。
 
 ## GitHub Pages
+
+在线地址：https://yingwang.github.io/history-sleep/
 
 仓库已经包含 GitHub Pages workflow。推送到 `main` 后，Actions 会把 `index.html`、`manifest.webmanifest`、`icon.svg`、`src/` 和 `audio/` 打包部署成静态站点。
 
