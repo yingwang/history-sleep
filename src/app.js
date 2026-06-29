@@ -9,7 +9,7 @@ import {
   voices
 } from "./stories.js";
 
-const NARRATION_PLAYBACK_RATE = 0.72;
+const NARRATION_PLAYBACK_RATE = 0.78;
 const NARRATION_FADE_IN_SECONDS = 5;
 const AMBIENT_FADE_IN_SECONDS = 4;
 const SPEECH_SLEEP_RATE = 0.88;
@@ -562,9 +562,9 @@ function playGeneratedAudio() {
   audio.src = audioFileName();
   setNarrationVolume({ fadeSeconds: NARRATION_FADE_IN_SECONDS, startFromSilence: true });
   audio.playbackRate = NARRATION_PLAYBACK_RATE;
-  audio.preservesPitch = false;
-  audio.webkitPreservesPitch = false;
-  audio.mozPreservesPitch = false;
+  audio.preservesPitch = true;
+  audio.webkitPreservesPitch = true;
+  audio.mozPreservesPitch = true;
   audio.currentTime = 0;
 
   const onTimeUpdate = () => {
