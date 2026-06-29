@@ -20,6 +20,16 @@ export const voices = [
     speech: { rate: 0.52, pitch: 0.8, volume: 0.78 }
   },
   {
+    id: "yunxi-sleep",
+    name: "云希睡前",
+    edgeName: "zh-CN-YunxiNeural",
+    audioId: "zh-CN-YunxiNeural-sleep",
+    description: "更慢、更低、更松的男声，专门给睡前版本用。",
+    speechOnly: true,
+    tts: { rate: "-56%", volume: "-14%", pitch: "-10Hz" },
+    speech: { rate: 0.48, pitch: 0.74, volume: 0.72, voiceHints: ["Reed", "Grandpa", "云希", "Tingting"] }
+  },
+  {
     id: "xiaoyi",
     name: "晓伊",
     edgeName: "zh-CN-XiaoyiNeural",
@@ -68,6 +78,10 @@ export const ambiences = [
   },
   { id: "none", name: "无背景音", description: "只播放旁白。" }
 ];
+
+export function voiceAudioId(voice) {
+  return voice.audioId || voice.edgeName;
+}
 
 function splitText(text) {
   return text

@@ -1,7 +1,7 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { durations, stories, voices, stripCues } from "../src/stories.js";
+import { durations, stories, voices, stripCues, voiceAudioId } from "../src/stories.js";
 
 const args = process.argv.slice(2);
 
@@ -14,8 +14,8 @@ function hasArg(name) {
   return args.includes(name);
 }
 
-function fileName(storyId, durationId, edgeName) {
-  return `audio/${storyId}-${durationId}-${edgeName}.mp3`;
+function fileName(storyId, durationId, voice) {
+  return `audio/${storyId}-${durationId}-${voiceAudioId(voice)}.mp3`;
 }
 
 function defaultVoiceFor(story, durationId) {
@@ -39,7 +39,11 @@ function collectJobs() {
       const text = stripCues(version.text).join("\n\n");
       const chosenVoices = allVoices
         ? voices
-        : [voiceFilter ? voices.find((voice) => voice.id === voiceFilter || voice.edgeName === voiceFilter) : defaultVoiceFor(story, durationId)];
+        : [
+          voiceFilter
+            ? voices.find((voice) => voice.id === voiceFilter || voice.edgeName === voiceFilter || voiceAudioId(voice) === voiceFilter)
+            : defaultVoiceFor(story, durationId)
+        ];
       for (const voice of chosenVoices.filter(Boolean)) {
         jobs.push({ story, durationId, voice, text });
       }
@@ -56,7 +60,7 @@ function listJobs() {
     return;
   }
   for (const job of jobs) {
-    console.log(`${job.story.id} ${job.durationId} ${job.voice.edgeName} -> ${fileName(job.story.id, job.durationId, job.voice.edgeName)}`);
+    console.log(`${job.story.id} ${job.durationId} ${job.voice.name} -> ${fileName(job.story.id, job.durationId, job.voice)}`);
   }
 }
 
@@ -81,7 +85,7 @@ function generate() {
 
   for (const job of jobs) {
     const textFile = join(".tmp", `${job.story.id}-${job.durationId}-${job.voice.id}.txt`);
-    const output = fileName(job.story.id, job.durationId, job.voice.edgeName);
+    const output = fileName(job.story.id, job.durationId, job.voice);
     writeFileSync(textFile, job.text, "utf-8");
 
     console.log(`Generating ${output}`);

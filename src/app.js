@@ -6,6 +6,7 @@ import {
   getVoice,
   hasText,
   stories,
+  voiceAudioId,
   voices
 } from "./stories.js";
 
@@ -196,7 +197,7 @@ function currentAmbient() {
 }
 
 function audioFileName() {
-  return `audio/${state.storyId}-${state.durationId}-${currentVoice().edgeName}.mp3`;
+  return `audio/${state.storyId}-${state.durationId}-${voiceAudioId(currentVoice())}.mp3`;
 }
 
 function showToast(message) {
@@ -531,6 +532,10 @@ function armTimer() {
 }
 
 function playGeneratedAudio() {
+  if (currentVoice().speechOnly) {
+    return playSpeechPreview();
+  }
+
   const audio = els.narrationAudio;
   const graph = ensureNarrationGraph();
   audio.src = audioFileName();
@@ -608,9 +613,10 @@ function speakNext(paragraphs) {
   utterance.rate = voice.speech.rate * SPEECH_SLEEP_RATE;
   utterance.pitch = voice.speech.pitch;
   utterance.volume = inputVolume(els.narrationVolume) * voice.speech.volume;
+  const voiceHints = voice.speech.voiceHints || [voice.name];
   const browserVoice = window.speechSynthesis
     .getVoices()
-    .find((item) => item.lang?.toLowerCase().startsWith("zh") && item.name.includes(voice.name));
+    .find((item) => item.lang?.toLowerCase().startsWith("zh") && voiceHints.some((hint) => item.name.includes(hint)));
   if (browserVoice) {
     utterance.voice = browserVoice;
   }
