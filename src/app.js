@@ -9,9 +9,7 @@ import {
   voices
 } from "./stories.js";
 
-const NARRATION_PLAYBACK_RATE = 0.78;
-const NARRATION_FADE_IN_SECONDS = 5;
-const AMBIENT_FADE_IN_SECONDS = 4;
+const NARRATION_PLAYBACK_RATE = 0.82;
 const SPEECH_SLEEP_RATE = 0.88;
 const SPEECH_PARAGRAPH_PAUSE_MS = 1100;
 const SHORT_CUE_PAUSE_MS = 2600;
@@ -127,22 +125,6 @@ function resumeAudioContext(audioCtx) {
   return audioCtx.resume().catch(() => {});
 }
 
-function rampGain(gainNode, targetVolume, seconds = 0) {
-  if (!gainNode) {
-    return;
-  }
-
-  const now = gainNode.context.currentTime;
-  const param = gainNode.gain;
-  param.cancelScheduledValues(now);
-  param.setValueAtTime(param.value, now);
-  if (seconds > 0) {
-    param.linearRampToValueAtTime(targetVolume, now + seconds);
-  } else {
-    param.value = targetVolume;
-  }
-}
-
 // iOS Safari often ignores HTMLMediaElement.volume, so sliders use Web Audio gain when possible.
 function createMediaAudioGraph(audio, volume) {
   const audioCtx = createAudioContext();
@@ -176,28 +158,22 @@ function ensureNarrationGraph() {
   return narrationGraph;
 }
 
-function setNarrationVolume({ fadeSeconds = 0, startFromSilence = false } = {}) {
+function setNarrationVolume() {
   const volume = inputVolume(els.narrationVolume);
   updateVolumeLabels();
   saveVolumeSettings();
   els.narrationAudio.volume = volume;
   if (narrationGraph?.gain) {
-    if (startFromSilence) {
-      narrationGraph.gain.gain.value = 0.0001;
-    }
-    rampGain(narrationGraph.gain, volume, fadeSeconds);
+    narrationGraph.gain.gain.value = volume;
   }
 }
 
-function setAmbientVolume({ fadeSeconds = 0, startFromSilence = false } = {}) {
+function setAmbientVolume() {
   const volume = inputVolume(els.ambientVolume);
   updateVolumeLabels();
   saveVolumeSettings();
   if (state.ambient?.gain) {
-    if (startFromSilence) {
-      state.ambient.gain.gain.value = 0.0001;
-    }
-    rampGain(state.ambient.gain, volume, fadeSeconds);
+    state.ambient.gain.gain.value = volume;
   }
   if (state.ambient?.audio) {
     state.ambient.audio.volume = volume;
@@ -406,7 +382,7 @@ function startFileAmbient(ambientConfig) {
   }
 
   state.ambient = ambient;
-  setAmbientVolume({ fadeSeconds: AMBIENT_FADE_IN_SECONDS, startFromSilence: true });
+  setAmbientVolume();
 
   if (ambientConfig.interval) {
     const schedulePageTurn = () => {
@@ -440,7 +416,7 @@ function startSyntheticAmbient() {
   }
 
   const gain = audioCtx.createGain();
-  gain.gain.value = 0.0001;
+  gain.gain.value = inputVolume(els.ambientVolume);
   gain.connect(audioCtx.destination);
 
   const ambient = { audioCtx, gain, nodes: [], intervals: [] };
@@ -476,7 +452,6 @@ function startSyntheticAmbient() {
   }
 
   state.ambient = ambient;
-  setAmbientVolume({ fadeSeconds: AMBIENT_FADE_IN_SECONDS });
   resumeAudioContext(audioCtx);
 }
 
@@ -560,7 +535,7 @@ function playGeneratedAudio() {
   const audio = els.narrationAudio;
   const graph = ensureNarrationGraph();
   audio.src = audioFileName();
-  setNarrationVolume({ fadeSeconds: NARRATION_FADE_IN_SECONDS, startFromSilence: true });
+  setNarrationVolume();
   audio.playbackRate = NARRATION_PLAYBACK_RATE;
   audio.preservesPitch = true;
   audio.webkitPreservesPitch = true;
@@ -586,7 +561,7 @@ function playGeneratedAudio() {
 
   return resumeAudioContext(graph?.audioCtx).then(() => audio.play()).then(() => {
     state.audioMode = "file";
-    els.playbackStatus.textContent = "正在播放生成音频 · 睡前慢速";
+    els.playbackStatus.textContent = "正在播放生成音频 · 慢速";
     armTimer();
   }).catch((error) => {
     cleanup();
