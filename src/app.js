@@ -674,6 +674,13 @@ function copyPrompt() {
   );
 }
 
+function bindVolumeSlider(input, update) {
+  input.addEventListener("input", update);
+  input.addEventListener("change", update);
+  input.addEventListener("touchend", update);
+  input.addEventListener("pointerup", update);
+}
+
 els.voiceSelect.addEventListener("change", () => {
   state.voiceId = els.voiceSelect.value;
 });
@@ -685,9 +692,9 @@ els.ambientSelect.addEventListener("change", () => {
   }
 });
 
-els.ambientVolume.addEventListener("input", () => setAmbientVolume());
+bindVolumeSlider(els.ambientVolume, () => setAmbientVolume());
 
-els.narrationVolume.addEventListener("input", () => setNarrationVolume());
+bindVolumeSlider(els.narrationVolume, () => setNarrationVolume());
 
 els.playButton.addEventListener("click", playCurrent);
 els.stopButton.addEventListener("click", () => stopAll());
