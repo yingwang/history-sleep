@@ -16,6 +16,10 @@ const SPEECH_SLEEP_RATE = 0.88;
 const SPEECH_PARAGRAPH_PAUSE_MS = 1100;
 const SHORT_CUE_PAUSE_MS = 2600;
 const LONG_CUE_PAUSE_MS = 5000;
+const VOLUME_STORAGE_KEYS = {
+  ambient: "historySleepAmbientVolume",
+  narration: "historySleepNarrationVolume"
+};
 
 const state = {
   storyId: "changan-rain-night",
@@ -45,7 +49,9 @@ const els = {
   playButton: document.querySelector("#playButton"),
   stopButton: document.querySelector("#stopButton"),
   ambientVolume: document.querySelector("#ambientVolume"),
+  ambientVolumeValue: document.querySelector("#ambientVolumeValue"),
   narrationVolume: document.querySelector("#narrationVolume"),
+  narrationVolumeValue: document.querySelector("#narrationVolumeValue"),
   timerButtons: document.querySelector("#timerButtons"),
   storyText: document.querySelector("#storyText"),
   versionState: document.querySelector("#versionState"),
@@ -59,6 +65,54 @@ let narrationGraph = null;
 function inputVolume(input) {
   const value = Number(input.value) / 100;
   return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
+}
+
+function clampSliderValue(input, value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) {
+    return input.value;
+  }
+  const min = Number(input.min || 0);
+  const max = Number(input.max || 100);
+  return String(Math.round(Math.max(min, Math.min(max, number))));
+}
+
+function readStoredValue(key) {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredValue(key, value) {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Private browsing or blocked storage should not break playback.
+  }
+}
+
+function loadVolumeSettings() {
+  const ambientVolume = readStoredValue(VOLUME_STORAGE_KEYS.ambient);
+  const narrationVolume = readStoredValue(VOLUME_STORAGE_KEYS.narration);
+  if (ambientVolume !== null) {
+    els.ambientVolume.value = clampSliderValue(els.ambientVolume, ambientVolume);
+  }
+  if (narrationVolume !== null) {
+    els.narrationVolume.value = clampSliderValue(els.narrationVolume, narrationVolume);
+  }
+  updateVolumeLabels();
+}
+
+function saveVolumeSettings() {
+  writeStoredValue(VOLUME_STORAGE_KEYS.ambient, els.ambientVolume.value);
+  writeStoredValue(VOLUME_STORAGE_KEYS.narration, els.narrationVolume.value);
+}
+
+function updateVolumeLabels() {
+  els.ambientVolumeValue.textContent = `${els.ambientVolume.value}%`;
+  els.narrationVolumeValue.textContent = `${els.narrationVolume.value}%`;
 }
 
 function createAudioContext() {
@@ -124,6 +178,8 @@ function ensureNarrationGraph() {
 
 function setNarrationVolume({ fadeSeconds = 0, startFromSilence = false } = {}) {
   const volume = inputVolume(els.narrationVolume);
+  updateVolumeLabels();
+  saveVolumeSettings();
   els.narrationAudio.volume = volume;
   if (narrationGraph?.gain) {
     if (startFromSilence) {
@@ -135,6 +191,8 @@ function setNarrationVolume({ fadeSeconds = 0, startFromSilence = false } = {}) 
 
 function setAmbientVolume({ fadeSeconds = 0, startFromSilence = false } = {}) {
   const volume = inputVolume(els.ambientVolume);
+  updateVolumeLabels();
+  saveVolumeSettings();
   if (state.ambient?.gain) {
     if (startFromSilence) {
       state.ambient.gain.gain.value = 0.0001;
@@ -652,9 +710,9 @@ els.ambientSelect.addEventListener("change", () => {
   }
 });
 
-els.ambientVolume.addEventListener("input", setAmbientVolume);
+els.ambientVolume.addEventListener("input", () => setAmbientVolume());
 
-els.narrationVolume.addEventListener("input", setNarrationVolume);
+els.narrationVolume.addEventListener("input", () => setNarrationVolume());
 
 els.playButton.addEventListener("click", playCurrent);
 els.stopButton.addEventListener("click", () => stopAll());
@@ -662,4 +720,5 @@ els.copyPromptButton.addEventListener("click", copyPrompt);
 
 window.speechSynthesis?.addEventListener?.("voiceschanged", () => {});
 
+loadVolumeSettings();
 render();
