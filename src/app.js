@@ -9,7 +9,6 @@ import {
   voices
 } from "./stories.js";
 
-const NARRATION_PLAYBACK_RATE = 1.0;
 const SPEECH_SLEEP_RATE = 0.88;
 const SPEECH_PARAGRAPH_PAUSE_MS = 1100;
 const SHORT_CUE_PAUSE_MS = 2600;
@@ -536,10 +535,6 @@ function playGeneratedAudio() {
   const graph = ensureNarrationGraph();
   audio.src = audioFileName();
   setNarrationVolume();
-  audio.playbackRate = NARRATION_PLAYBACK_RATE;
-  audio.preservesPitch = true;
-  audio.webkitPreservesPitch = true;
-  audio.mozPreservesPitch = true;
   audio.currentTime = 0;
 
   const onTimeUpdate = () => {
@@ -561,7 +556,7 @@ function playGeneratedAudio() {
 
   return resumeAudioContext(graph?.audioCtx).then(() => audio.play()).then(() => {
     state.audioMode = "file";
-    els.playbackStatus.textContent = "正在播放生成音频 · 原速";
+    els.playbackStatus.textContent = "正在播放生成音频";
     armTimer();
   }).catch((error) => {
     cleanup();
