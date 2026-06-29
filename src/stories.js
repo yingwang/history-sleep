@@ -24,8 +24,7 @@ export const voices = [
     name: "云希睡前",
     edgeName: "zh-CN-YunxiNeural",
     audioId: "zh-CN-YunxiNeural-sleep",
-    description: "更慢、更低、更松的男声，专门给睡前版本用。",
-    speechOnly: true,
+    description: "更慢、更低、更松的男声，专门给睡前版本用，播放独立生成的 MP3。",
     tts: { rate: "-56%", volume: "-14%", pitch: "-10Hz" },
     speech: { rate: 0.48, pitch: 0.74, volume: 0.72, voiceHints: ["Reed", "Grandpa", "云希", "Tingting"] }
   },

@@ -27,7 +27,7 @@ npm run dev
 页面支持：
 
 - 主题横向滑动选择。
-- 旁白选择：`zh-CN-XiaoxiaoNeural`、`zh-CN-YunxiNeural`、`zh-CN-YunxiNeural-sleep`、`zh-CN-XiaoyiNeural`。其中 `zh-CN-YunxiNeural-sleep` 是新增的睡前慢声，已经生成独立 MP3，参数比普通云希更慢、更低，不会覆盖普通云希。
+- 旁白选择：`zh-CN-XiaoxiaoNeural`、`zh-CN-YunxiNeural`、`zh-CN-YunxiNeural-sleep`、`zh-CN-XiaoyiNeural`。其中 `zh-CN-YunxiNeural-sleep` 是新增的睡前慢声，已经生成独立 MP3，播放时会读取对应音频文件，不会覆盖普通云希。
 - 背景音选择：雨声、壁炉、夜风、翻书声、海浪、无背景音。
 - 背景音量和旁白音量分开调，两个滑杆都是 0 到 100，并显示实时百分比；默认旁白更低，背景音轻轻托住，手机 Safari 会用 Web Audio 增益控制，避免系统忽略网页里的 `audio.volume`，调好的音量会保存在本地。
 - 定时关闭：不定时、10 分钟、20 分钟、30 分钟。
