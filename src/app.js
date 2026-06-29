@@ -9,7 +9,13 @@ import {
   voices
 } from "./stories.js";
 
-const NARRATION_PLAYBACK_RATE = 0.82;
+const NARRATION_PLAYBACK_RATE = 0.72;
+const NARRATION_FADE_IN_SECONDS = 5;
+const AMBIENT_FADE_IN_SECONDS = 4;
+const SPEECH_SLEEP_RATE = 0.88;
+const SPEECH_PARAGRAPH_PAUSE_MS = 1100;
+const SHORT_CUE_PAUSE_MS = 2600;
+const LONG_CUE_PAUSE_MS = 5000;
 
 const state = {
   storyId: "changan-rain-night",
@@ -67,6 +73,22 @@ function resumeAudioContext(audioCtx) {
   return audioCtx.resume().catch(() => {});
 }
 
+function rampGain(gainNode, targetVolume, seconds = 0) {
+  if (!gainNode) {
+    return;
+  }
+
+  const now = gainNode.context.currentTime;
+  const param = gainNode.gain;
+  param.cancelScheduledValues(now);
+  param.setValueAtTime(param.value, now);
+  if (seconds > 0) {
+    param.linearRampToValueAtTime(targetVolume, now + seconds);
+  } else {
+    param.value = targetVolume;
+  }
+}
+
 // iOS Safari often ignores HTMLMediaElement.volume, so sliders use Web Audio gain when possible.
 function createMediaAudioGraph(audio, volume) {
   const audioCtx = createAudioContext();
@@ -100,18 +122,24 @@ function ensureNarrationGraph() {
   return narrationGraph;
 }
 
-function setNarrationVolume() {
+function setNarrationVolume({ fadeSeconds = 0, startFromSilence = false } = {}) {
   const volume = inputVolume(els.narrationVolume);
   els.narrationAudio.volume = volume;
   if (narrationGraph?.gain) {
-    narrationGraph.gain.gain.value = volume;
+    if (startFromSilence) {
+      narrationGraph.gain.gain.value = 0.0001;
+    }
+    rampGain(narrationGraph.gain, volume, fadeSeconds);
   }
 }
 
-function setAmbientVolume() {
+function setAmbientVolume({ fadeSeconds = 0, startFromSilence = false } = {}) {
   const volume = inputVolume(els.ambientVolume);
   if (state.ambient?.gain) {
-    state.ambient.gain.gain.value = volume;
+    if (startFromSilence) {
+      state.ambient.gain.gain.value = 0.0001;
+    }
+    rampGain(state.ambient.gain, volume, fadeSeconds);
   }
   if (state.ambient?.audio) {
     state.ambient.audio.volume = volume;
@@ -320,6 +348,7 @@ function startFileAmbient(ambientConfig) {
   }
 
   state.ambient = ambient;
+  setAmbientVolume({ fadeSeconds: AMBIENT_FADE_IN_SECONDS, startFromSilence: true });
 
   if (ambientConfig.interval) {
     const schedulePageTurn = () => {
@@ -353,7 +382,7 @@ function startSyntheticAmbient() {
   }
 
   const gain = audioCtx.createGain();
-  gain.gain.value = inputVolume(els.ambientVolume);
+  gain.gain.value = 0.0001;
   gain.connect(audioCtx.destination);
 
   const ambient = { audioCtx, gain, nodes: [], intervals: [] };
@@ -389,6 +418,7 @@ function startSyntheticAmbient() {
   }
 
   state.ambient = ambient;
+  setAmbientVolume({ fadeSeconds: AMBIENT_FADE_IN_SECONDS });
   resumeAudioContext(audioCtx);
 }
 
@@ -472,10 +502,11 @@ function playGeneratedAudio() {
   const audio = els.narrationAudio;
   const graph = ensureNarrationGraph();
   audio.src = audioFileName();
-  setNarrationVolume();
+  setNarrationVolume({ fadeSeconds: NARRATION_FADE_IN_SECONDS, startFromSilence: true });
   audio.playbackRate = NARRATION_PLAYBACK_RATE;
-  audio.preservesPitch = true;
-  audio.webkitPreservesPitch = true;
+  audio.preservesPitch = false;
+  audio.webkitPreservesPitch = false;
+  audio.mozPreservesPitch = false;
   audio.currentTime = 0;
 
   const onTimeUpdate = () => {
@@ -497,7 +528,7 @@ function playGeneratedAudio() {
 
   return resumeAudioContext(graph?.audioCtx).then(() => audio.play()).then(() => {
     state.audioMode = "file";
-    els.playbackStatus.textContent = "正在播放生成音频 · 慢速";
+    els.playbackStatus.textContent = "正在播放生成音频 · 睡前慢速";
     armTimer();
   }).catch((error) => {
     cleanup();
@@ -518,7 +549,7 @@ function playSpeechPreview() {
   state.audioMode = "speech";
   state.speaking = true;
   state.speechIndex = 0;
-  els.playbackStatus.textContent = "正在用浏览器朗读预览 · 慢速";
+  els.playbackStatus.textContent = "正在用浏览器朗读预览 · 睡前慢速";
   armTimer();
   speakNext(paragraphs);
   return Promise.resolve();
@@ -538,7 +569,7 @@ function speakNext(paragraphs) {
   updateProgress((state.speechIndex / paragraphs.length) * 100);
 
   if (/^\[[^\]]+\]$/.test(paragraph.trim())) {
-    const delay = paragraph.includes("三秒") ? 3000 : 1600;
+    const delay = paragraph.includes("三秒") ? LONG_CUE_PAUSE_MS : SHORT_CUE_PAUSE_MS;
     state.cueHandle = window.setTimeout(() => speakNext(paragraphs), delay);
     return;
   }
@@ -546,7 +577,7 @@ function speakNext(paragraphs) {
   const utterance = new SpeechSynthesisUtterance(paragraph);
   const voice = currentVoice();
   utterance.lang = "zh-CN";
-  utterance.rate = voice.speech.rate;
+  utterance.rate = voice.speech.rate * SPEECH_SLEEP_RATE;
   utterance.pitch = voice.speech.pitch;
   utterance.volume = inputVolume(els.narrationVolume) * voice.speech.volume;
   const browserVoice = window.speechSynthesis
@@ -556,10 +587,10 @@ function speakNext(paragraphs) {
     utterance.voice = browserVoice;
   }
   utterance.onend = () => {
-    state.cueHandle = window.setTimeout(() => speakNext(paragraphs), 450);
+    state.cueHandle = window.setTimeout(() => speakNext(paragraphs), SPEECH_PARAGRAPH_PAUSE_MS);
   };
   utterance.onerror = () => {
-    state.cueHandle = window.setTimeout(() => speakNext(paragraphs), 450);
+    state.cueHandle = window.setTimeout(() => speakNext(paragraphs), SPEECH_PARAGRAPH_PAUSE_MS);
   };
   window.speechSynthesis.speak(utterance);
 }

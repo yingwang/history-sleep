@@ -29,7 +29,7 @@ npm run dev
 - 主题横向滑动选择。
 - 旁白选择：`zh-CN-XiaoxiaoNeural`、`zh-CN-YunxiNeural`、`zh-CN-XiaoyiNeural`。
 - 背景音选择：雨声、壁炉、夜风、翻书声、海浪、无背景音。
-- 背景音量和旁白音量分开调；手机 Safari 会用 Web Audio 增益控制，避免系统忽略网页里的 `audio.volume`。
+- 背景音量和旁白音量分开调；默认旁白更低，背景音轻轻托住，手机 Safari 会用 Web Audio 增益控制，避免系统忽略网页里的 `audio.volume`。
 - 定时关闭：不定时、10 分钟、20 分钟、30 分钟。
 - 如果本地已有 edge-tts 生成的 mp3，会优先播放 mp3；如果没有，会退回浏览器内置中文朗读，方便快速预览。
 - 背景音优先播放 `ambient/` 里的真实环境音文件；如果文件加载失败，会回退到浏览器实时合成音。
@@ -112,8 +112,8 @@ Mixkit 的 sound effects 标注为 Free License。这个项目没有把背景音
 
 默认参数已经写在 `src/stories.js`：
 
-- `zh-CN-XiaoxiaoNeural`：`rate=-38%`，`volume=-8%`，`pitch=-2Hz`。
-- `zh-CN-YunxiNeural`：`rate=-40%`，`volume=-8%`，`pitch=-4Hz`。
-- `zh-CN-XiaoyiNeural`：`rate=-38%`，`volume=-8%`，`pitch=-1Hz`。
+- `zh-CN-XiaoxiaoNeural`：`rate=-48%`，`volume=-12%`，`pitch=-4Hz`。
+- `zh-CN-YunxiNeural`：`rate=-50%`，`volume=-12%`，`pitch=-7Hz`。
+- `zh-CN-XiaoyiNeural`：`rate=-48%`，`volume=-12%`，`pitch=-3Hz`。
 
-睡前故事的关键不是把声音做得很戏剧化，而是让语速稳定、音量略低、情绪不要起伏太大。播放器会把已生成的 MP3 以 0.82 倍速播放；如果重新生成音频，以上 edge-tts 参数也会让新文件本身更慢。背景音建议从 8% 到 12% 之间试，雨声可以稍高一点，翻书声和壁炉声要更低。
+睡前故事的关键不是把声音做得很戏剧化，而是让语速稳定、音量略低、情绪不要起伏太大。播放器会把已生成的 MP3 以 0.72 倍速播放，并在开始时做轻微淡入；慢速播放时不强行保持原音高，声音会自然低一点，更接近睡前听感。如果重新生成音频，以上 edge-tts 参数也会让新文件本身更慢、更低。背景音建议从 8% 到 12% 之间试，雨声可以稍高一点，翻书声和壁炉声要更低。
