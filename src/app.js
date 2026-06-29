@@ -48,6 +48,76 @@ const els = {
   narrationAudio: document.querySelector("#narrationAudio")
 };
 
+let narrationGraph = null;
+
+function inputVolume(input) {
+  const value = Number(input.value) / 100;
+  return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
+}
+
+function createAudioContext() {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  return AudioContext ? new AudioContext() : null;
+}
+
+function resumeAudioContext(audioCtx) {
+  if (!audioCtx || audioCtx.state !== "suspended") {
+    return Promise.resolve();
+  }
+  return audioCtx.resume().catch(() => {});
+}
+
+// iOS Safari often ignores HTMLMediaElement.volume, so sliders use Web Audio gain when possible.
+function createMediaAudioGraph(audio, volume) {
+  const audioCtx = createAudioContext();
+  if (!audioCtx) {
+    return null;
+  }
+
+  try {
+    const source = audioCtx.createMediaElementSource(audio);
+    const gain = audioCtx.createGain();
+    gain.gain.value = volume;
+    source.connect(gain);
+    gain.connect(audioCtx.destination);
+    return { audioCtx, source, gain };
+  } catch {
+    try {
+      audioCtx.close();
+    } catch {
+      // Some browsers throw if the context is already closing.
+    }
+    return null;
+  }
+}
+
+function ensureNarrationGraph() {
+  if (narrationGraph) {
+    return narrationGraph;
+  }
+
+  narrationGraph = createMediaAudioGraph(els.narrationAudio, inputVolume(els.narrationVolume));
+  return narrationGraph;
+}
+
+function setNarrationVolume() {
+  const volume = inputVolume(els.narrationVolume);
+  els.narrationAudio.volume = volume;
+  if (narrationGraph?.gain) {
+    narrationGraph.gain.gain.value = volume;
+  }
+}
+
+function setAmbientVolume() {
+  const volume = inputVolume(els.ambientVolume);
+  if (state.ambient?.gain) {
+    state.ambient.gain.gain.value = volume;
+  }
+  if (state.ambient?.audio) {
+    state.ambient.audio.volume = volume;
+  }
+}
+
 function currentStory() {
   return getStory(state.storyId);
 }
@@ -232,13 +302,23 @@ function startAmbient() {
 }
 
 function startFileAmbient(ambientConfig) {
-  const volume = Number(els.ambientVolume.value) / 100;
-  const ambient = { audio: null, intervals: [], nodes: [] };
+  const volume = inputVolume(els.ambientVolume);
+  const ambient = { audio: null, audioCtx: null, gain: null, intervals: [], nodes: [] };
   const audio = new Audio(ambientConfig.file);
   audio.volume = volume;
   audio.loop = !ambientConfig.interval;
   audio.preload = "auto";
   ambient.audio = audio;
+
+  const graph = createMediaAudioGraph(audio, volume);
+  if (graph) {
+    audio.volume = 1;
+    ambient.audioCtx = graph.audioCtx;
+    ambient.gain = graph.gain;
+    ambient.nodes.push(graph.source, graph.gain);
+    resumeAudioContext(graph.audioCtx);
+  }
+
   state.ambient = ambient;
 
   if (ambientConfig.interval) {
@@ -248,8 +328,8 @@ function startFileAmbient(ambientConfig) {
           return;
         }
         audio.currentTime = 0;
-        audio.volume = Number(els.ambientVolume.value) / 100;
-        audio.play().catch(() => {});
+        setAmbientVolume();
+        resumeAudioContext(ambient.audioCtx).then(() => audio.play()).catch(() => {});
         schedulePageTurn();
       }, 12000 + Math.random() * 8000);
       ambient.intervals.push(handle);
@@ -258,7 +338,7 @@ function startFileAmbient(ambientConfig) {
     return;
   }
 
-  audio.play().catch(() => {
+  resumeAudioContext(ambient.audioCtx).then(() => audio.play()).catch(() => {
     if (state.ambient === ambient) {
       stopAmbient();
       startSyntheticAmbient();
@@ -267,14 +347,13 @@ function startFileAmbient(ambientConfig) {
 }
 
 function startSyntheticAmbient() {
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContext) {
+  const audioCtx = createAudioContext();
+  if (!audioCtx) {
     return;
   }
 
-  const audioCtx = new AudioContext();
   const gain = audioCtx.createGain();
-  gain.gain.value = Number(els.ambientVolume.value) / 100;
+  gain.gain.value = inputVolume(els.ambientVolume);
   gain.connect(audioCtx.destination);
 
   const ambient = { audioCtx, gain, nodes: [], intervals: [] };
@@ -310,6 +389,7 @@ function startSyntheticAmbient() {
   }
 
   state.ambient = ambient;
+  resumeAudioContext(audioCtx);
 }
 
 function playCrackle(audioCtx, output) {
@@ -390,8 +470,9 @@ function armTimer() {
 
 function playGeneratedAudio() {
   const audio = els.narrationAudio;
+  const graph = ensureNarrationGraph();
   audio.src = audioFileName();
-  audio.volume = Number(els.narrationVolume.value) / 100;
+  setNarrationVolume();
   audio.playbackRate = NARRATION_PLAYBACK_RATE;
   audio.preservesPitch = true;
   audio.webkitPreservesPitch = true;
@@ -414,7 +495,7 @@ function playGeneratedAudio() {
   audio.addEventListener("timeupdate", onTimeUpdate);
   audio.addEventListener("ended", onEnded);
 
-  return audio.play().then(() => {
+  return resumeAudioContext(graph?.audioCtx).then(() => audio.play()).then(() => {
     state.audioMode = "file";
     els.playbackStatus.textContent = "正在播放生成音频 · 慢速";
     armTimer();
@@ -467,7 +548,7 @@ function speakNext(paragraphs) {
   utterance.lang = "zh-CN";
   utterance.rate = voice.speech.rate;
   utterance.pitch = voice.speech.pitch;
-  utterance.volume = (Number(els.narrationVolume.value) / 100) * voice.speech.volume;
+  utterance.volume = inputVolume(els.narrationVolume) * voice.speech.volume;
   const browserVoice = window.speechSynthesis
     .getVoices()
     .find((item) => item.lang?.toLowerCase().startsWith("zh") && item.name.includes(voice.name));
@@ -540,18 +621,9 @@ els.ambientSelect.addEventListener("change", () => {
   }
 });
 
-els.ambientVolume.addEventListener("input", () => {
-  if (state.ambient?.gain) {
-    state.ambient.gain.gain.value = Number(els.ambientVolume.value) / 100;
-  }
-  if (state.ambient?.audio) {
-    state.ambient.audio.volume = Number(els.ambientVolume.value) / 100;
-  }
-});
+els.ambientVolume.addEventListener("input", setAmbientVolume);
 
-els.narrationVolume.addEventListener("input", () => {
-  els.narrationAudio.volume = Number(els.narrationVolume.value) / 100;
-});
+els.narrationVolume.addEventListener("input", setNarrationVolume);
 
 els.playButton.addEventListener("click", playCurrent);
 els.stopButton.addEventListener("click", () => stopAll());
