@@ -13,7 +13,7 @@
 
 - `long`：20 分钟长版，适合完整睡前音频。
 
-目前第一批 12 个主题都已放入长版正文，并生成了 `zh-CN-XiaoxiaoNeural`、`zh-CN-YunxiNeural`、`zh-CN-XiaoyiNeural` 三个声线的 MP3。
+目前第一批 12 个主题都已放入长版正文，并生成了 `zh-CN-XiaoxiaoNeural`、`zh-CN-YunxiNeural`、`zh-CN-YunxiNeural-sleep`、`zh-CN-XiaoyiNeural` 四个声线的 MP3。
 
 ## 本地预览
 
@@ -27,7 +27,7 @@ npm run dev
 页面支持：
 
 - 主题横向滑动选择。
-- 旁白选择：`zh-CN-XiaoxiaoNeural`、`zh-CN-YunxiNeural`、`zh-CN-YunxiNeural-sleep`、`zh-CN-XiaoyiNeural`。其中 `zh-CN-YunxiNeural-sleep` 是新增的睡前慢声，会优先用浏览器本地中文语音按更慢、更低的参数朗读；如果以后生成对应 MP3，可以改成播放预生成音频。
+- 旁白选择：`zh-CN-XiaoxiaoNeural`、`zh-CN-YunxiNeural`、`zh-CN-YunxiNeural-sleep`、`zh-CN-XiaoyiNeural`。其中 `zh-CN-YunxiNeural-sleep` 是新增的睡前慢声，已经生成独立 MP3，参数比普通云希更慢、更低，不会覆盖普通云希。
 - 背景音选择：雨声、壁炉、夜风、翻书声、海浪、无背景音。
 - 背景音量和旁白音量分开调，两个滑杆都是 0 到 100，并显示实时百分比；默认旁白更低，背景音轻轻托住，手机 Safari 会用 Web Audio 增益控制，避免系统忽略网页里的 `audio.volume`，调好的音量会保存在本地。
 - 定时关闭：不定时、10 分钟、20 分钟、30 分钟。
@@ -114,7 +114,7 @@ Mixkit 的 sound effects 标注为 Free License。这个项目没有把背景音
 
 - `zh-CN-XiaoxiaoNeural`：`rate=-48%`，`volume=-12%`，`pitch=-4Hz`。
 - `zh-CN-YunxiNeural`：`rate=-50%`，`volume=-12%`，`pitch=-7Hz`。
-- `zh-CN-YunxiNeural-sleep`：新增睡前慢声，浏览器本地预览会用更慢、更低的朗读参数；edge-tts 预留配置为 `rate=-56%`，`volume=-14%`，`pitch=-10Hz`，生成文件名会带 `zh-CN-YunxiNeural-sleep`，不会覆盖普通云希。
+- `zh-CN-YunxiNeural-sleep`：云希睡前慢声，edge-tts 参数为 `rate=-56%`，`volume=-14%`，`pitch=-10Hz`，生成文件名带 `zh-CN-YunxiNeural-sleep`，不会覆盖普通云希。
 - `zh-CN-XiaoyiNeural`：`rate=-48%`，`volume=-12%`，`pitch=-3Hz`。
 
 睡前故事的关键不是把声音做得很戏剧化，而是让语速稳定、音量略低、情绪不要起伏太大。播放器现在不再设置浏览器播放倍速或音高，已生成的 MP3 会按文件本身原样播放，避免手机浏览器在变速处理时出现杂音。如果需要更慢的睡前版本，应该重新生成更慢的源音频，而不是在浏览器播放时硬降速。背景音建议从 8% 到 12% 之间试，雨声可以稍高一点，翻书声和壁炉声要更低。
